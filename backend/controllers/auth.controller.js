@@ -29,7 +29,6 @@ export const signupHandler = async (req,res)=>{
             email,
             password:hashedPassword
         });
-
         if(newUser){
             generateTokenAndSetCookie(newUser._id,res);
             await newUser.save();
@@ -37,7 +36,6 @@ export const signupHandler = async (req,res)=>{
                 _id:newUser._id,
                 fullName:newUser.fullName,
                 userName:newUser.userName,
-                email:newUser.email,
                 followers:newUser.followers,
                 following:newUser.following,
                 profileImgage:newUser.profileImage,
@@ -97,8 +95,13 @@ export const logoutHandler = async (req,res)=>{
     }
 };
 
-// export const getMe = async (req,res) =>{
-//     try {
-//         const user=await User.findById(req.user._id); 
-//     }
-// }
+export const getMe = async (req,res) =>{
+    try {
+        const user=await User.findById(req.user._id).select("-password");
+        res.status(200).json(user);
+    }
+    catch(err){
+        console.log("Error in getMe controller",err.message);
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
