@@ -19,6 +19,10 @@ const notificationSchema=new mongoose.Schema({
     read:{
         type:Boolean,
         default:false
+    },
+    post:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Post'
     }
 },{timestamps:true});
 
