@@ -9,9 +9,9 @@ import {v2 as cloudinary} from "cloudinary"
 import notificationRoutes from './routes/notification.route.js'
 
 const app=express();
-app.use(express.json());
 app.use(cookieParser()); 
-app.use(express.urlencoded({extended:true})); // to parse URL-encoded data
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true })); // to parse URL-encoded data
 const PORT=process.env.PORT || 3000;
 dotenv.config();
 cloudinary.config({
