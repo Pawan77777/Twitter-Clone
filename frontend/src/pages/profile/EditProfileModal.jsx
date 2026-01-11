@@ -3,7 +3,7 @@ import { useState } from "react";
 const EditProfileModal = () => {
 	const [formData, setFormData] = useState({
 		fullName: "",
-		username: "",
+		userName: "",
 		email: "",
 		bio: "",
 		link: "",
@@ -44,10 +44,10 @@ const EditProfileModal = () => {
 							/>
 							<input
 								type='text'
-								placeholder='Username'
+								placeholder='userName'
 								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.username}
-								name='username'
+								value={formData.userName}
+								name='userName'
 								onChange={handleInputChange}
 							/>
 						</div>

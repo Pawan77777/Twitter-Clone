@@ -7,18 +7,18 @@ export const signupHandler = async (req,res)=>{
         const {fullName,userName,email,password}=req.body;
         const emailRegex=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if(!emailRegex.test(email)){
-            return res.status(400).json({message:"Invalid email format"});
+            return res.status(400).json({error:"Invalid email format"});
         }
         const existingUser=await User.findOne({userName:userName});
         if(existingUser){
-            return res.status(400).json({message:"Username is already taken"});
+            return res.status(400).json({error:"Username is already taken"});
         }
         const existingEmail=await User.findOne({email:email});
         if(existingEmail){
-            return res.status(400).json({message:"Email is already taken"});
+            return res.status(400).json({error:"Email is already taken"});
         }
         if(password.length<6){
-            return res.status(400).json({message:"Password must be at least 6 characters long"});
+            return res.status(400).json({error:"Password must be at least 6 characters long"});
         }
         // Hash password so that even if the user database is compromised, the attackers cannot see the actual passwords.
         const salt=bcrypt.genSaltSync(10);
