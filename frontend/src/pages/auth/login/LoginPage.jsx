@@ -28,15 +28,17 @@ const LoginPage = () => {
 				const data=await res.json();
 				if(!res.ok)
 					throw new Error(data.error || "Something went wrong");
+				return data;
 			}
 			catch(error){
 				throw error;
 			}
 		},
-		onSuccess:()=>{
-			toast.success("Login Successfull");
+		onSuccess: (data) => {
+			toast.success("Login Successful");
+			queryClient.setQueryData(["authUser"], data);
 			// refetch the authUser query to get the logged in user data
-			queryClient.invalidateQueries({queryKey:["authUser"]})
+			// queryClient.invalidateQueries({queryKey:["authUser"]})
 		}
 	})
 
