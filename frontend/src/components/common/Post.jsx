@@ -51,8 +51,9 @@ const Post = ({ post }) => {
     // 	queryClient.invalidateQueries({queryKey:["posts"]});
     // }
   });
-
-  const isMyPost = authUser?._id === post.user._id;
+  const postUserId =
+  typeof post.user === "string" ? post.user : post.user._id;
+  const isMyPost = authUser?._id === postUserId;
 
   const formattedDate = "1h";
 
@@ -105,9 +106,9 @@ const Post = ({ post }) => {
           </div>
           <div className="flex flex-col gap-3 overflow-hidden">
             <span>{post.text}</span>
-            {post.img && (
+            {post.image && (
               <img
-                src={post.img}
+                src={post.image}
                 className="h-80 object-contain rounded-lg border border-gray-700"
                 alt=""
               />

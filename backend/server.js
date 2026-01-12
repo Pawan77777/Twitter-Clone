@@ -10,7 +10,7 @@ import notificationRoutes from './routes/notification.route.js'
 
 const app=express();
 app.use(cookieParser()); 
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "10mb" })); // limit shouldnt be to large to prevent DOS attacks
 app.use(express.urlencoded({ limit: "10mb", extended: true })); // to parse URL-encoded data
 const PORT=process.env.PORT || 3000;
 dotenv.config();
