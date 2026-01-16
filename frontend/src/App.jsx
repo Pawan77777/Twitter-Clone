@@ -9,13 +9,8 @@ import ProfilePage from "./pages/profile/ProfilePage"
 import { Toaster } from "react-hot-toast"
 import { useQuery } from "@tanstack/react-query"
 import LoadingSpinner from "./components/common/LoadingSpinner"
-import { useLocation, useParams } from "react-router-dom";
 
 function App() {
-  const { userName } = useParams();
-const location = useLocation();
-  console.log("Full URL path:", location.pathname);
-console.log("Username param:", userName);
   const {data:authUser,isLoading}=useQuery({
     // we use querykey to give a unique name to our query and refer to it later
     queryKey:["authUser"],
@@ -27,7 +22,6 @@ console.log("Username param:", userName);
         if(!res.ok){
           throw new Error(data.error||"Something went wrong");
         }
-        console.log("Auth user fetched successfully",data);
         return data;
       }
       catch(error){

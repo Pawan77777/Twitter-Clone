@@ -6,7 +6,6 @@ import {v2 as cloudinary} from "cloudinary";
 
 export const getUserProfile=async (req,res)=>{
     const {username}=req.params;
-    console.log("username is : ",username);
     try{
         const user=await User.findOne({userName:username}).select("-password");
         if(!user)
@@ -48,7 +47,7 @@ export const followUnfollowUser=async(req,res)=>{
                 to:userToModify.id,
             })
             await newNotification.save();
-            // return the id of the user as a response
+            
             return res.status(200).json({message:"User followed successfully"});
         }
     }

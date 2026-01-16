@@ -25,6 +25,7 @@ const Post = ({ post }) => {
           },
         });
         const data = await response.json();
+        console.log("Delete Post Response:", data);
         if (!response.ok) {
           throw new Error(data.message || "Failed to delete post");
         }
