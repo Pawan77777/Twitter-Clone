@@ -66,7 +66,7 @@ export const commentOnPost=async(req,res)=>{
         const userId=req.user._id;
         if(!text)
             return res.status(400).json({error:"Text field is required"});
-        
+
         const post=await Post.findById(postId);
         if(!post)
             return res.status(404).json({error:"Post not found"});
@@ -77,7 +77,12 @@ export const commentOnPost=async(req,res)=>{
         }
         post.comments.push(comment);
         await post.save();
-        return res.status(200).json(post);
+        const populatedPost = await Post.findById(postId).populate({
+  path: "comments.user",
+  select: "-password",
+});
+const newComment = populatedPost.comments[populatedPost.comments.length-1];
+        return res.status(200).json(newComment);
     }
     catch(error){
         console.log("Error in CommentOnPost : ",error);

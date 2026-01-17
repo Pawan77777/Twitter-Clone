@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import LoadingSpinner from "./LoadingSpinner";
 import { toast } from "react-hot-toast";
+import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
@@ -15,6 +16,10 @@ const Post = ({ post }) => {
   const authUser = queryClient.getQueryData(["authUser"]);
   const postOwner = post.user;
   const isLiked = post.likes.some((id) => id.toString() === authUser?._id);
+  const postUserId = typeof post.user === "string" ? post.user : post.user._id;
+  const isMyPost = authUser?._id === postUserId;
+  
+  const formattedDate = formatPostDate(post.createdAt);
   const { mutate: likePost, isPending: isLiking } = useMutation({
     mutationFn: async () => {
       try {
@@ -81,19 +86,49 @@ const Post = ({ post }) => {
     // 	queryClient.invalidateQueries({queryKey:["posts"]});
     // }
   });
-  const postUserId = typeof post.user === "string" ? post.user : post.user._id;
-  const isMyPost = authUser?._id === postUserId;
 
-  const formattedDate = "1h";
-
-  const isCommenting = false;
-
+  const {mutate:commentPost,isPending:isCommenting}=useMutation({
+    mutationFn:async(text)=>{
+      try {
+        const response=await fetch(`/api/posts/comment/${post._id}`,{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+          },
+          body:JSON.stringify({text:comment}),
+        });
+        const data=await response.json();
+        if(!response.ok){
+          throw new Error(data.message || "Failed to post comment");
+        }
+        return data;
+      }catch(error){
+        throw new Error(error.message || "Failed to post comment");
+      }
+    },
+    onSuccess: (newComment) => {
+  toast.success("Comment posted successfully");
+  setComment("");
+  queryClient.setQueriesData({ queryKey: ["posts"] }, (oldPosts) =>
+    oldPosts?.map((p) =>
+      p._id === post._id
+        ? { ...p, comments: [...p.comments, newComment] }
+        : p
+    )
+  );
+},
+    onError:(error)=>{
+      toast.error(error.message || "Failed to post comment");
+    },
+  });
   const handleDeletePost = () => {
     deletePost();
   };
 
   const handlePostComment = (e) => {
     e.preventDefault();
+    if (isCommenting) return;
+    commentPost(comment);
   };
 
   const handleLikePost = () => {
@@ -106,20 +141,20 @@ const Post = ({ post }) => {
       <div className="flex gap-2 items-start p-4 border-b border-gray-700">
         <div className="avatar">
           <Link
-            to={`/profile/${postOwner.username}`}
+            to={`/profile/${postOwner.userName}`}
             className="w-8 rounded-full overflow-hidden"
           >
-            <img src={postOwner.profileImg || "/avatar-placeholder.png"} />
+            <img src={postOwner.profileImage || "/avatar-placeholder.png"} />
           </Link>
         </div>
         <div className="flex flex-col flex-1">
           <div className="flex gap-2 items-center">
-            <Link to={`/profile/${postOwner.username}`} className="font-bold">
+            <Link to={`/profile/${postOwner.userName}`} className="font-bold">
               {postOwner.fullName}
             </Link>
             <span className="text-gray-700 flex gap-1 text-sm">
-              <Link to={`/profile/${postOwner.username}`}>
-                @{postOwner.username}
+              <Link to={`/profile/${postOwner.userName}`}>
+                @{postOwner.userName}
               </Link>
               <span>·</span>
               <span>{formattedDate}</span>
@@ -180,7 +215,7 @@ const Post = ({ post }) => {
                           <div className="w-8 rounded-full">
                             <img
                               src={
-                                comment.user.profileImg ||
+                                comment.user.profileImage ||
                                 "/avatar-placeholder.png"
                               }
                             />
@@ -192,7 +227,7 @@ const Post = ({ post }) => {
                               {comment.user.fullName}
                             </span>
                             <span className="text-gray-700 text-sm">
-                              @{comment.user.username}
+                              @{comment.user.userName}
                             </span>
                           </div>
                           <div className="text-sm">{comment.text}</div>
