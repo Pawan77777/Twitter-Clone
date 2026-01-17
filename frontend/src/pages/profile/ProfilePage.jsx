@@ -13,18 +13,16 @@ import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useFollow from "../../hooks/useFollow";
+import { formatMemberSinceDate } from "../../utils/date";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
-
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
-
 	const {userName}=useParams();
-
-	const {data:user,isLoading,error}=useQuery({
+	const {data:user,isLoading}=useQuery({
 		queryKey:["profileUser",userName],
 		queryFn:async()=>{
 			try{
@@ -40,6 +38,7 @@ const ProfilePage = () => {
 		}
 	});
 	const queryClient=useQueryClient();
+		const memberSinceDate=formatMemberSinceDate(user?.createdAt);
 	  const authUser = queryClient.getQueryData(["authUser"]);
 	const isMyProfile=user && user.userName===authUser?.userName;
 		const {follow,isPending}=useFollow();
@@ -165,7 +164,7 @@ const ProfilePage = () => {
 									)}
 									<div className='flex gap-2 items-center'>
 										<IoCalendarOutline className='w-4 h-4 text-slate-500' />
-										<span className='text-sm text-slate-500'>Joined July 2021</span>
+										<span className='text-sm text-slate-500'>{memberSinceDate}</span>
 									</div>
 								</div>
 								<div className='flex gap-2'>
@@ -202,7 +201,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts />
+					<Posts feedType={feedType} userName={userName}  userId={user?._id}/>
 				</div>
 			</div>
 		</>
