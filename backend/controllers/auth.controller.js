@@ -11,7 +11,7 @@ export const signupHandler = async (req,res)=>{
         }
         const existingUser=await User.findOne({userName:userName});
         if(existingUser){
-            return res.status(400).json({error:"Username is already taken"});
+            return res.status(400).json({error:"userName is already taken"});
         }
         const existingEmail=await User.findOne({email:email});
         if(existingEmail){
@@ -38,7 +38,7 @@ export const signupHandler = async (req,res)=>{
                 userName:newUser.userName,
                 followers:newUser.followers,
                 following:newUser.following,
-                profileImgage:newUser.profileImage,
+                profileImage:newUser.profileImage,
                 coverImage:newUser.coverImage,
                 bio:newUser.bio,
                 link:newUser.link,
@@ -59,7 +59,7 @@ export const loginHandler = async (req,res)=>{
         const {userName,password}=req.body;
         const user=await User.findOne({userName:userName});
         if(!user){
-            return res.status(400).json({message:"Invalid username "});
+            return res.status(400).json({message:"Invalid userName "});
         }
         const isPasswordValid=await bcrypt.compare(password,user.password||"");
         if(!isPasswordValid){
@@ -73,7 +73,7 @@ export const loginHandler = async (req,res)=>{
             email:user.email,
             followers:user.followers,
             following:user.following,
-            profileImgage:user.profileImage,
+            profileImage:user.profileImage,
             coverImage:user.coverImage,
             bio:user.bio,
             link:user.link,
