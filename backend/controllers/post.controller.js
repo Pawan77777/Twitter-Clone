@@ -92,7 +92,6 @@ export const likeUnlikePost=async(req,res)=>{
         const post=await Post.findById(postId);
         if(!post)
             return res.status(404).json({message:"Post not found"});
-
         // const userLikedPost=post.likes.includes(userId);
 
         const userLikedPost=post.likes.some(
@@ -100,7 +99,12 @@ export const likeUnlikePost=async(req,res)=>{
         )
         if(userLikedPost){
             // Unlike Post
-            await Post.updateOne({_id:postId},{$pull:{likes:userId}});
+            const updatedPost = await Post.findByIdAndUpdate(
+                postId,
+                { $pull: { likes: userId } },
+                { new: true }
+            );
+            // const updatedLikes = updatedPost.likes;
             await User.updateOne({_id:userId},{$pull:{likedPosts:postId}})
             await Notification.deleteOne({
                 from:userId,
@@ -108,15 +112,22 @@ export const likeUnlikePost=async(req,res)=>{
                 type:"like",
                 post:postId,
             });
-            return res.status(200).json({message:"Post Unliked Successfully"});
+            const updatedLikes = updatedPost.likes.filter(id => id.toString() !== userId.toString());
+            return res.status(200).json(updatedLikes);
         }
         else{
             //Like Post
             // post.likes.push(userId);
-            await Post.updateOne(
-                {_id:postId},
-                {$addToSet:{likes:userId}} // Prevent Duplicates
+            // await Post.updateOne(
+            //     {_id:postId},
+            //     {$addToSet:{likes:userId}} // Prevent Duplicates
+            // );
+            const updatedPost = await Post.findByIdAndUpdate(
+                postId,
+                { $addToSet: { likes: userId } },
+                { new: true }
             );
+            const updatedLikes = updatedPost.likes;
             await User.updateOne({_id:userId},{$push:{likedPosts:postId}});
             if(post.user.toString()!== userId.toString()){ // Prevent notifying yourself
                 await Notification.create({
@@ -126,7 +137,8 @@ export const likeUnlikePost=async(req,res)=>{
                 post:postId
                 })
             }
-            return res.status(200).json({message:"Post liked successfully"});
+            // const updatedLikes=post.likes
+            return res.status(200).json(updatedLikes);
         }
     }
     catch(error){
