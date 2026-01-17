@@ -31,7 +31,7 @@ const Post = ({ post }) => {
         });
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.message || "Failed to like post");
+          throw new Error(data.error || "Failed to like post");
         }
         return data;
       } catch (error) {
@@ -61,7 +61,7 @@ const Post = ({ post }) => {
         const data = await response.json();
         console.log("Delete Post Response:", data);
         if (!response.ok) {
-          throw new Error(data.message || "Failed to delete post");
+          throw new Error(data.error || "Failed to delete post");
         }
         return data;
       } catch (error) {
@@ -99,7 +99,7 @@ const Post = ({ post }) => {
         });
         const data=await response.json();
         if(!response.ok){
-          throw new Error(data.message || "Failed to post comment");
+          throw new Error(data.error || "Failed to post comment");
         }
         return data;
       }catch(error){

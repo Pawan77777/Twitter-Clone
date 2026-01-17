@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useFollow from "../../hooks/useFollow";
 import { formatMemberSinceDate } from "../../utils/date";
 import toast from "react-hot-toast";
+import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
 const ProfilePage = () => {
   const [coverImage, setcoverImage] = useState(null);
@@ -45,51 +46,52 @@ const ProfilePage = () => {
   const { follow, isPending } = useFollow();
   const isFollowing = authUser?.following.includes(user?._id);
 
-  const { mutate: updateProfile, isPending: isUpdatingProfile } = useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await fetch("/api/users/update", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            coverImage,
-            profileImage,
-          }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to update profile/cover image");
-        }
-        return data;
-      } catch (error) {
-        throw new Error(error.message || "Something went wrong");
-      }
-    },
-    onSuccess: (updatedUser) => {
-      toast.success("Profile updated successfully");
+//   const { mutate: updateProfile, isPending: isUpdatingProfile } = useMutation({
+//     mutationFn: async () => {
+//       try {
+//         const response = await fetch("/api/users/update", {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify({
+//             coverImage,
+//             profileImage,
+//           }),
+//         });
+//         const data = await response.json();
+//         if (!response.ok) {
+//           throw new Error(data.error || "Failed to update profile/cover image");
+//         }
+//         return data;
+//       } catch (error) {
+//         throw new Error(error.message || "Something went wrong");
+//       }
+//     },
+//     onSuccess: (updatedUser) => {
+//       toast.success("Profile updated successfully");
 
-      queryClient.setQueryData(["profileUser", userName], updatedUser);
+//       queryClient.setQueryData(["profileUser", userName], updatedUser);
 
-      queryClient.setQueryData(["authUser"], (authUser) => {
-        if (!authUser) return authUser;
-        if (authUser._id === updatedUser._id) {
-          return {
-            ...authUser,
-            profileImage: updatedUser.profileImage,
-            coverImage: updatedUser.coverImage,
-          };
-        }
-        return authUser;
-      });
-    },
+//       queryClient.setQueryData(["authUser"], (authUser) => {
+//         if (!authUser) return authUser;
+//         if (authUser._id === updatedUser._id) {
+//           return {
+//             ...authUser,
+//             profileImage: updatedUser.profileImage,
+//             coverImage: updatedUser.coverImage,
+//           };
+//         }
+//         return authUser;
+//       });
+//     },
 
-    onError: (error) => {
-      toast.error(error.message || "Failed to update profile");
-    },
-  });
+//     onError: (error) => {
+//       toast.error(error.message || "Failed to update profile");
+//     },
+//   });
 
+  const { updateProfile, isUpdatingProfile } = useUpdateUserProfile();
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
     if (file) {
@@ -192,7 +194,11 @@ const ProfilePage = () => {
                 {(coverImage || profileImage) && (
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-                    onClick={() => updateProfile()}
+                    onClick={async () => {
+						await updateProfile({ coverImage, profileImage })
+						setcoverImage(null);
+						setprofileImage(null);
+					}}
                   >
                     {isUpdatingProfile ? "Updating..." : "Update"}
                   </button>

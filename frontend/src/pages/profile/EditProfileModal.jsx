@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
 const EditProfileModal = ({ authUser }) => {
   const [formData, setFormData] = useState({
@@ -14,53 +15,54 @@ const EditProfileModal = ({ authUser }) => {
   });
   const queryClient = useQueryClient();
 
-  const { mutate: updateProfile, isPending: isUpdatingProfile } = useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await fetch("/api/users/update", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to update profile/cover image");
-        }
-        return data;
-      } catch (error) {
-        throw new Error(error.message || "Something went wrong");
-      }
-    },
-    onSuccess: (updatedUser) => {
-      toast.success("Profile updated successfully");
+//   const { mutate: updateProfile, isPending: isUpdatingProfile } = useMutation({
+//     mutationFn: async () => {
+//       try {
+//         const response = await fetch("/api/users/update", {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify(formData),
+//         });
+//         const data = await response.json();
+//         if (!response.ok) {
+//           throw new Error(data.error || "Failed to update profile/cover image");
+//         }
+//         return data;
+//       } catch (error) {
+//         throw new Error(error.message || "Something went wrong");
+//       }
+//     },
+//     onSuccess: (updatedUser) => {
+//       toast.success("Profile updated successfully");
 
-      queryClient.setQueryData(
-        ["profileUser", updatedUser.userName],
-        updatedUser,
-      );
-      queryClient.setQueryData(["authUser"], (authUser) => {
-        if (!authUser) return authUser;
+//       queryClient.setQueryData(
+//         ["profileUser", updatedUser.userName],
+//         updatedUser,
+//       );
+//       queryClient.setQueryData(["authUser"], (authUser) => {
+//         if (!authUser) return authUser;
 	    
-        if (authUser._id === updatedUser._id) {
-          return {
-            ...authUser,
-            fullName: updatedUser.fullName,
-            userName: updatedUser.userName,
-            email: updatedUser.email,
-            bio: updatedUser.bio,
-            link: updatedUser.link,
-          };
-        }
-        return authUser;
-      });
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update profile");
-    },
-  });
+//         if (authUser._id === updatedUser._id) {
+//           return {
+//             ...authUser,
+//             fullName: updatedUser.fullName,
+//             userName: updatedUser.userName,
+//             email: updatedUser.email,
+//             bio: updatedUser.bio,
+//             link: updatedUser.link,
+//           };
+//         }
+//         return authUser;
+//       });
+//     },
+//     onError: (error) => {
+//       toast.error(error.message || "Failed to update profile");
+//     },
+//   });
 
+  const { updateProfile, isUpdatingProfile } = useUpdateUserProfile();
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -97,7 +99,7 @@ const EditProfileModal = ({ authUser }) => {
             className="flex flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-              updateProfile();
+              updateProfile(formData);
             }}
           >
             <div className="flex flex-wrap gap-2">

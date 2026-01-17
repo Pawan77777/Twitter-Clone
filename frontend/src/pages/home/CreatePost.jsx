@@ -26,7 +26,7 @@ const CreatePost = () => {
         const data = await response.json();
 		console.log("Create Post Response:", data);
         if (!response.ok) {
-          throw new Error(data.message || "Failed to create post");
+          throw new Error(data.error || "Failed to create post");
         }
         return data;
       } catch (error) {
