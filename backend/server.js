@@ -30,6 +30,3 @@ app.listen(PORT,()=>{
     console.log(`Server is running on port ${PORT}`);
     connectMongoDB();
 })
-
-// kQmJGRQO4evJrGn3
-// pawanchoubey408_db_user
